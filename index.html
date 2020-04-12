@@ -1,0 +1,56 @@
+<base target="_top">
+  </head>
+  <body>
+    <form>
+    <input type="file" name="myFile">
+    <input type="button" value="submit">
+    </form>
+    <div id="output"></div>
+    <button>Load Files</button>
+    <script>
+    const btn = document.querySelector('input[type=button]');
+    const myFile = document.querySelector('input[name=myFile]');
+    const output = document.querySelector('#output');
+    console.log(btn);
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      console.log(e);
+      const file = myFile.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = function(e){
+        const data = e.target.result.split(',');
+        const obj = {
+          fileName : file.name,
+          mimeType : data[0].match(/:(\w.+);/)[1],
+          data : data[1]
+        }
+        console.log(obj);
+        google.script.run.withSuccessHandler(success).doUpload(obj);
+      }
+      console.log(myFile);
+    })
+    document.querySelector('button').addEventListener('click',loadFiles);
+
+    function loadFiles(){
+       google.script.run.withSuccessHandler(successLoad).loadFileURLS('1eLuvh-96ssmqiahB7qqTL3xpD782fxym');
+    }
+
+    function successLoad(data){
+      const urls = JSON.parse(data);
+      output.innerHTML = "";
+      urls.forEach(function(file){
+        output.innerHTML += `<div><a href="${file.url}" target="_blank"> ${file.name}</a></div>`;
+      })
+      console.log(urls);
+    }
+
+    function success(data){
+      console.log(data);
+      myFile.value ="";
+      loadFiles();
+    }
+
+    </script>
+  </body>
+</html>
